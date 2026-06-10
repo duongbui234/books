@@ -1,0 +1,25 @@
+% Header LaTeX cho bản PDF (xelatex). Tiếng Việt do XeLaTeX + Noto Serif xử lý.
+\usepackage{xcolor}
+\usepackage{etoolbox}
+
+% Bản dịch tiếng Việt = blockquote, tô màu xanh đậm để phân biệt với bản tiếng Anh.
+\definecolor{vitext}{HTML}{17365D}
+\AtBeginEnvironment{quote}{\color{vitext}}
+
+% Giãn dòng cho dễ đọc.
+\linespread{1.08}
+
+% Một số ký hiệu toán/logic không có glyph trong Noto Serif -> ánh xạ sang chế độ toán.
+\usepackage{newunicodechar}
+\newunicodechar{≤}{\ensuremath{\leq}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{≠}{\ensuremath{\neq}}
+\newunicodechar{⇒}{\ensuremath{\Rightarrow}}
+\newunicodechar{⇐}{\ensuremath{\Leftarrow}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{←}{\ensuremath{\leftarrow}}
+\newunicodechar{≈}{\ensuremath{\approx}}
+\newunicodechar{∞}{\ensuremath{\infty}}
+\newunicodechar{×}{\ensuremath{\times}}
+\newunicodechar{−}{\ensuremath{-}}
+\newunicodechar{÷}{\ensuremath{\div}}
