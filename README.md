@@ -68,3 +68,15 @@ Tạo `books/<slug>/` với `source.epub`, `source.pdf`, `meta.yaml`, `glossary.
 Nguồn chỉ có PDF (không EPUB) → trích bằng `scripts/extract_pdf.py` (giữ cả **hình vẽ**, 225 ảnh). Chỉ xuất **PDF** (không EPUB).
 
 **Hoàn thành: 18/18 phần** 🎉 (Forward + 16 chương + Afterword) · 378 trang · Đầu ra: `books/system-design/output/system-design-song-ngu.pdf`
+
+### 📗 Grokking the System Design Interview (`books/grokking/`)
+
+Nguồn chỉ có PDF (196 trang). Trích bằng `scripts/extract_pdf.py` với cờ mới cho sách có **heading không in đậm** (phân biệt bằng cỡ chữ + font): `--head-size 24 --head-no-bold --title-family Calibri-Light`. Giữ cả **hình vẽ** (114 ảnh). Chỉ xuất **PDF**.
+
+**Hoàn thành: 18/18 chương** 🎉 (16 bài toán thiết kế: TinyURL, Pastebin, Instagram, Dropbox, Messenger, Twitter, YouTube, Typeahead, Rate Limiter, Twitter Search, Web Crawler, Newsfeed, Yelp, Uber, Ticketmaster + 2 chương System Design Basics) · 319 trang · Đầu ra: `books/grokking/output/grokking-song-ngu.pdf`
+
+### 📙 The Pragmatic Programmer, 20th Anniversary Ed. (`books/pragmatic-programmer/`)
+
+Nguồn chỉ có PDF (497 trang), **layout đa cột + trích dẫn lề** → extractor cũ không dùng được. Viết extractor riêng `scripts/extract_pp.py` (pdftohtml XML: tách epigraph theo màu teal, nhận heading theo **font family** LiberationSans/TrebuchetMS, nhận hộp **Tip N**, tách file theo từng Topic). Bỏ hình raster, giữ code+bảng. Chỉ xuất **PDF**.
+
+**Hoàn thành: 53/53 Topic** 🎉 (9 chương + Front matter + Postface + Bibliography + Possible Answers) · 416 trang · Đầu ra: `books/pragmatic-programmer/output/pragmatic-programmer-song-ngu.pdf`
