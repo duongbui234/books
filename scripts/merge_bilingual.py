@@ -19,7 +19,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TAIL_TITLES = ("references", "footnotes", "bibliography", "reference materials")
+TAIL_TITLES = ("references", "footnotes", "bibliography", "reference materials",
+               "further reading")
 
 
 def load_glossary_terms(book_dir):
