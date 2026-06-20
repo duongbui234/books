@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TAIL = ("references", "footnotes", "bibliography", "reference materials",
-        "further reading")
+        "further reading", "additional resources")
 
 
 def split_blocks(t):

@@ -1,0 +1,5 @@
+.venv-translate/
+.hf-cache/
+.ct2-vinai-en2vi/
+__pycache__/
+*.pyc
