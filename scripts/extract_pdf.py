@@ -31,6 +31,25 @@ HEAD_SIZE = 20     # font size >= mức này + đậm -> heading
 MIN_IMG = 40       # bỏ ảnh nhỏ hơn (icon/nhiễu)
 
 
+def is_footer_page_number(txt, top, page_height):
+    """True for standalone page numbers in the bottom margin."""
+    if not page_height:
+        return False
+    return (
+        top > page_height * 0.92
+        and re.fullmatch(r"(\d+|[ivxlcdm]+)", txt.strip(), re.IGNORECASE)
+    )
+
+
+def is_running_header_footer(txt):
+    """True for running headers/footers such as '12 | Chapter'."""
+    page = r"(?:\d+|[ivxlcdm]+)"
+    return bool(
+        re.match(rf"^{page}\s*\|", txt, re.IGNORECASE)
+        or re.search(rf"\|\s*{page}$", txt, re.IGNORECASE)
+    )
+
+
 def text_of(el):
     return "".join(el.itertext())
 
@@ -38,7 +57,7 @@ def text_of(el):
 def main():
     argv = sys.argv[1:]
     # tách cờ tùy chọn
-    global HEAD_SIZE
+    global HEAD_SIZE, GAP_PARA, GAP_LINE
     require_bold = True
     title_family = None
     code_family = None
@@ -54,10 +73,15 @@ def main():
             title_family = argv[i + 1]; i += 2; continue
         if a == "--code-family":
             code_family = argv[i + 1]; i += 2; continue
+        if a == "--gap-para":
+            GAP_PARA = float(argv[i + 1]); i += 2; continue
+        if a == "--gap-line":
+            GAP_LINE = float(argv[i + 1]); i += 2; continue
         rest.append(a); i += 1
     if len(rest) != 4:
         sys.exit("Dùng: extract_pdf.py <slug> <chNN> <trang-đầu> <trang-cuối> "
-                 "[--head-size N] [--head-no-bold] [--title-family STR] [--code-family STR]")
+                 "[--head-size N] [--head-no-bold] [--title-family STR] [--code-family STR] "
+                 "[--gap-para N] [--gap-line N]")
     slug, ch, first, last = rest
     book = ROOT / "books" / slug
     pdf = book / "source.pdf"
@@ -85,6 +109,7 @@ def main():
     items = []  # (page, top, kind, payload)
     for page in tree.iter("page"):
         pno = int(page.get("number"))
+        page_height = float(page.get("height", 0) or 0)
         for el in page:
             if el.tag == "image":
                 w, h = float(el.get("width", 0)), float(el.get("height", 0))
@@ -97,9 +122,12 @@ def main():
                 txt = raw.strip()
                 if not txt:
                     continue
+                top = float(el.get("top"))
+                if is_footer_page_number(txt, top, page_height):
+                    continue
                 # Bỏ running header/footer: "12 | Chapter 1: ..." (trang chẵn)
                 # hoặc "Tên mục | 13" (trang lẻ). Không đụng footnote (không có " | ").
-                if re.match(r"^\d+\s*\|", txt) or re.search(r"\|\s*\d+\s*$", txt):
+                if is_running_header_footer(txt):
                     continue
                 bold = el.find("b") is not None
                 size = fsize.get(el.get("font"), 0)
@@ -108,7 +136,7 @@ def main():
                 is_code = bool(code_family) and code_family in fam
                 # code giữ thụt lề: dùng raw (chỉ bỏ khoảng trắng cuối)
                 code_txt = raw.rstrip()
-                items.append((pno, float(el.get("top")), "text",
+                items.append((pno, top, "text",
                               (txt, bold, size, left, fam, is_code, code_txt)))
         # đánh dấu hết trang để không nối đoạn xuyên trang bằng gap
         items.append((pno, 10**9, "pagebreak", None))
