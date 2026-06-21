@@ -79,4 +79,34 @@ Nguồn chỉ có PDF (196 trang). Trích bằng `scripts/extract_pdf.py` với 
 
 Nguồn chỉ có PDF (497 trang), **layout đa cột + trích dẫn lề** → extractor cũ không dùng được. Viết extractor riêng `scripts/extract_pp.py` (pdftohtml XML: tách epigraph theo màu teal, nhận heading theo **font family** LiberationSans/TrebuchetMS, nhận hộp **Tip N**, tách file theo từng Topic). Bỏ hình raster, giữ code+bảng. Chỉ xuất **PDF**.
 
-**Hoàn thành: 53/53 Topic** 🎉 (9 chương + Front matter + Postface + Bibliography + Possible Answers) · 416 trang · Đầu ra: `books/pragmatic-programmer/output/pragmatic-programmer-song-ngu.pdf`
+**Hoàn thành: 57/57 Topic** 🎉 (9 chương + Front matter + Postface + Bibliography + Possible Answers) · 416 trang · Đầu ra: `books/pragmatic-programmer/output/pragmatic-programmer-song-ngu.pdf`
+
+### 📕 Building Microservices (`books/building-microservices/`)
+
+Nguồn chỉ có PDF — **Designing Fine-Grained Systems, Second Edition** (Sam Newman, O'Reilly 2021). Trích bằng `scripts/extract_pdf.py` (giữ hình vẽ). Chỉ xuất **PDF**.
+
+**Hoàn thành: 18/18 chương** 🎉 · 882 trang · Đầu ra: `books/building-microservices/output/building-microservices-song-ngu.pdf`
+
+### 📗 Database Internals (`books/database-internals/`)
+
+Nguồn chỉ có PDF — **A Deep Dive into How Distributed Data Systems Work** (Alex Petrov). Trích bằng `scripts/extract_pdf.py` (giữ hình vẽ). Chỉ xuất **PDF**.
+
+**Hoàn thành: 18/19 chương** ⏳ (thiếu ch18 ở bản dịch tiếng Việt) · 489 trang · Đầu ra: `books/database-internals/output/database-internals-song-ngu.pdf`
+
+### 📘 Designing Distributed Systems (`books/designing-distributed-system/`)
+
+Nguồn chỉ có PDF — **Patterns and Paradigms for Scalable, Reliable Services** (Brendan Burns). Trích bằng `scripts/extract_pdf.py` (giữ hình vẽ). Chỉ xuất **PDF**.
+
+**Hoàn thành: 14/14 chương** 🎉 · 219 trang · Đầu ra: `books/designing-distributed-system/output/designing-distributed-system-song-ngu.pdf`
+
+### 📙 Fundamentals of Data Engineering (`books/fundamentals-of-data-engineer/`)
+
+Nguồn chỉ có PDF — **Plan and Build Robust Data Systems** (Joe Reis & Matt Housley). Trích bằng `scripts/extract_pdf.py` (giữ hình vẽ). Chỉ xuất **PDF**.
+
+**Hoàn thành: 14/14 chương** 🎉 · 571 trang · Đầu ra: `books/fundamentals-of-data-engineer/output/fundamentals-of-data-engineer-song-ngu.pdf`
+
+### 📒 Node.js Design Patterns (`books/nodejs-design-patterns/`)
+
+Nguồn chỉ có PDF — **Third Edition** (Mario Casciaro & Luciano Mammino). Trích bằng `scripts/extract_pdf.py` (giữ hình vẽ). Chỉ xuất **PDF**.
+
+**Hoàn thành: 14/14 chương** 🎉 · 700 trang · Đầu ra: `books/nodejs-design-patterns/output/nodejs-design-patterns-song-ngu.pdf`
