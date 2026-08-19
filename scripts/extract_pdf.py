@@ -29,6 +29,19 @@ GAP_PARA = 25      # khoảng cách dọc (px) lớn hơn mức này -> sang đo
 GAP_LINE = 30      # gap tối đa để coi là dòng kế tiếp trong cùng khối
 HEAD_SIZE = 20     # font size >= mức này + đậm -> heading
 MIN_IMG = 40       # bỏ ảnh nhỏ hơn (icon/nhiễu)
+LINE_TOL = 6       # chênh lệch top (px) vẫn coi là cùng một DÒNG
+
+# PDF do calibre/InDesign xuất thường giữ ligature dạng ký tự riêng (ﬁ, ﬀ…).
+# Chúng làm hỏng việc tra từ và hiển thị sai khi build; trải phẳng về chữ thường.
+LIGATURES = str.maketrans({
+    "\ufb00": "ff", "\ufb01": "fi", "\ufb02": "fl", "\ufb03": "ffi",
+    "\ufb04": "ffl", "\ufb05": "st", "\ufb06": "st",
+})
+
+
+def unligature(txt):
+    return txt.translate(LIGATURES)
+
 
 
 def is_footer_page_number(txt, top, page_height):
@@ -57,7 +70,7 @@ def text_of(el):
 def main():
     argv = sys.argv[1:]
     # tách cờ tùy chọn
-    global HEAD_SIZE, GAP_PARA, GAP_LINE
+    global HEAD_SIZE, GAP_PARA, GAP_LINE, LINE_TOL
     require_bold = True
     title_family = None
     code_family = None
@@ -77,11 +90,13 @@ def main():
             GAP_PARA = float(argv[i + 1]); i += 2; continue
         if a == "--gap-line":
             GAP_LINE = float(argv[i + 1]); i += 2; continue
+        if a == "--line-tol":
+            LINE_TOL = float(argv[i + 1]); i += 2; continue
         rest.append(a); i += 1
     if len(rest) != 4:
         sys.exit("Dùng: extract_pdf.py <slug> <chNN> <trang-đầu> <trang-cuối> "
                  "[--head-size N] [--head-no-bold] [--title-family STR] [--code-family STR] "
-                 "[--gap-para N] [--gap-line N]")
+                 "[--gap-para N] [--gap-line N] [--line-tol N]")
     slug, ch, first, last = rest
     book = ROOT / "books" / slug
     pdf = book / "source.pdf"
@@ -118,7 +133,7 @@ def main():
                 src = Path(el.get("src"))
                 items.append((pno, float(el.get("top")), "image", src.name))
             elif el.tag == "text":
-                raw = text_of(el).replace("\n", " ")
+                raw = unligature(text_of(el)).replace("\n", " ")
                 txt = raw.strip()
                 if not txt:
                     continue
@@ -144,12 +159,19 @@ def main():
     # Gom item cùng một DÒNG (cùng trang, chênh top < LINE_TOL) rồi sắp trái->phải.
     # Chữ nghiêng (thuật ngữ) thường lệch baseline 1-2px so với chữ thường cùng dòng;
     # nếu chỉ sắp theo top thì các run này bị xáo lung tung giữa câu.
-    LINE_TOL = 6
     leftof = lambda it: it[3][3] if it[2] == "text" else 0.0
     ordered, i, n = [], 0, len(items)
     while i < n:
         j, page0, top0 = i + 1, items[i][0], items[i][1]
-        while j < n and items[j][0] == page0 and abs(items[j][1] - top0) < LINE_TOL:
+        # Gom theo CHUỖI chứ không so với item đầu dòng: một dòng có thể chứa chữ
+        # thường, chữ mono và chữ nghiêng lệch baseline dần (vd 617→618→623). Nếu
+        # chỉ so với top0 thì run cuối rớt ra, thành "code" một từ rồi bị lọc MẤT.
+        # Vẫn chặn trôi bằng trần LINE_TOL*3 cho cả dòng.
+        prev = top0
+        while (j < n and items[j][0] == page0
+               and items[j][1] - prev < LINE_TOL
+               and items[j][1] - top0 < LINE_TOL * 2):
+            prev = items[j][1]
             j += 1
         line = items[i:j]
         line.sort(key=leftof)
@@ -187,7 +209,7 @@ def main():
                 # '-' ascii giữ lại (thường là từ ghép thật, vd "index-organized")
                 tail = joined[-1]
                 joined[-1] = (tail[:-1] if tail[-1] in "‐­" else tail) + ln
-            elif k == "list" and re.match(r"^([•◦▪‣·]|\d+\.)\s", ln):
+            elif k == "list" and re.match(r"^([•◦▪‣·]|\d+\.)(\s|$)", ln):
                 joined.append(ln)
             elif k == "list" and joined:
                 joined[-1] = joined[-1] + " " + ln
@@ -204,7 +226,9 @@ def main():
             blocks.append(("list", out))
         elif k == "heading":
             text = " ".join(joined)
-            if re.match(r"^(CHAPTER\s+\d+|FORWARD|AFTERWORD)", text, re.I):
+            # "Chapter 1 . Clean Code": số chương và dấu chấm là hai run riêng
+            text = re.sub(r"(\w)\s+\.\s+", r"\1. ", text)
+            if re.match(r"^(CHAPTER\s+\d+|PART\s+[IVXLC\d]+|FOREWORD|FORWARD|AFTERWORD|APPENDIX|BIBLIOGRAPHY|INTRODUCTION|PREFACE)\b", text, re.I):
                 lvl = "#"
             elif title_family and title_family in (fam or ""):
                 lvl = "#"
@@ -242,7 +266,7 @@ def main():
         if cur and cur[0] == "code":
             flush()  # văn xuôi quay lại -> chốt khối code
         is_head = size >= HEAD_SIZE and (bold or not require_bold)
-        is_item = bool(re.match(r"^([•◦▪‣·]|\d+\.)\s", txt))
+        is_item = bool(re.match(r"^([•◦▪‣·]|\d+\.)(\s|$)", txt))
         # mục tham khảo "[n] ..." luôn mở khối mới (URL dài xuống dòng dễ dính mục sau)
         if re.match(r"^\[\d+\]\s", txt):
             flush()
