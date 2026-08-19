@@ -95,7 +95,11 @@ Nguồn chỉ có PDF — **Designing Fine-Grained Systems, Second Edition** (Sa
 
 Nguồn chỉ có PDF — **A Deep Dive into How Distributed Data Systems Work** (Alex Petrov). Trích bằng `scripts/extract_pdf.py` (giữ hình vẽ). Chỉ xuất **PDF**.
 
-**Hoàn thành: 18/19 chương** ⏳ (thiếu ch18 ở bản dịch tiếng Việt) · 489 trang · Đầu ra: `books/database-internals/output/database-internals-song-ngu.pdf`
+**Hoàn thành: 19/19 phần** 🎉 · 2.540 khối song ngữ · Đầu ra: `books/database-internals/output/database-internals-song-ngu.pdf`
+
+> 🔧 **Đã vá lỗi mất chỉ số dưới (subscript).** `LINE_TOL = 6` quá chặt với cách dàn trang của sách này: dòng chữ ở top 193–196 còn subscript ở top 203 (lệch 7–10px), nên subscript rơi khỏi nhóm dòng, thành "khối code một từ" rồi bị bộ lọc nhiễu xoá. Hậu quả: `T₁ and T₂ read the value of V` bị trích thành `T and T read the value of V` — mất nghĩa hoàn toàn ở sách dùng ký hiệu toán dày đặc. Trích lại với `--line-tol 8` (dòng kế tiếp cách 19px nên 8 an toàn cả hai phía): **+103 token subscript khôi phục**, −38 token là số trang/running header mà bộ lọc header-footer (thêm vào pipeline SAU khi cuốn này được trích lần đầu) nay dọn sạch. Giữ 2.448/2.540 khối bản dịch cũ, dịch bù 92 khối.
+
+> ℹ️ Lỗi này KHÔNG phát hiện được khi audit ở tolerance 6 — vì chính tolerance 6 là nguyên nhân. Phải quét ở tolerance rộng hơn mới lộ ra.
 
 ### 📘 Designing Distributed Systems (`books/designing-distributed-system/`)
 
