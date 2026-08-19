@@ -79,7 +79,11 @@ Nguồn chỉ có PDF (196 trang). Trích bằng `scripts/extract_pdf.py` với 
 
 Nguồn chỉ có PDF (497 trang), **layout đa cột + trích dẫn lề** → extractor cũ không dùng được. Viết extractor riêng `scripts/extract_pp.py` (pdftohtml XML: tách epigraph theo màu teal, nhận heading theo **font family** LiberationSans/TrebuchetMS, nhận hộp **Tip N**, tách file theo từng Topic). Bỏ hình raster, giữ code+bảng. Chỉ xuất **PDF**.
 
-**Hoàn thành: 57/57 Topic** 🎉 (9 chương + Front matter + Postface + Bibliography + Possible Answers) · 416 trang · Đầu ra: `books/pragmatic-programmer/output/pragmatic-programmer-song-ngu.pdf`
+**Hoàn thành: 57/57 Topic** 🎉 (9 chương + Front matter + Postface + Bibliography + Possible Answers) · 3.658 khối song ngữ · Đầu ra: `books/pragmatic-programmer/output/pragmatic-programmer-song-ngu.pdf`
+
+> 🔧 **Đã vá lỗi xếp sai thứ tự chữ.** `extract_pp.py` vốn không gom dòng, chỉ `sorted(body, key=top)`, nên mọi run lệch baseline vài px bị xếp theo chiều dọc thay vì trái→phải: từ khoá trong code nhảy chỗ (`def calculate_account_fees(account)` → `calculate_account_fees(account) def`), chỉ số chú thích `[n]` dời sang câu khác, chữ Hy Lạp bị đẩy xuống cuối đoạn. Nặng nhất: nhãn `Tip N` nằm cùng dòng với tiêu đề (lệch 2px) nên ra SAU tiêu đề, khiến **49/100 Tip mất định dạng**, biến thành `###` thường. Sau khi vá: 221 → 5 chỗ nghi vấn (đều là dương tính giả), **100/100 Tip đúng**. Giữ lại 3.222/3.658 khối bản dịch cũ, chỉ dịch bù 436 khối.
+
+> ⚠️ Còn tồn: `extract_pp.py` xuất code thành đoạn văn thường (không bọc ```), nên bản song ngữ lặp lại đoạn code hai lần (bản thường + blockquote). Lỗi có sẵn từ trước, chưa sửa.
 
 ### 📕 Building Microservices (`books/building-microservices/`)
 

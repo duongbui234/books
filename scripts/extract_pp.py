@@ -122,6 +122,45 @@ def classify(ln):
     return None
 
 
+LINE_TOL = 8       # chênh `top` (px) vẫn coi là cùng một DÒNG hiển thị
+
+
+def merge_lines(runs):
+    """Gom các <text> cùng một DÒNG rồi sắp TRÁI->PHẢI.
+
+    get_lines() trả về từng <text> rời rạc. Trước đây build_blocks chỉ
+    `sorted(body, key=top)`, nên mọi run lệch baseline vài px — chỉ số chú thích
+    dạng superscript, từ khoá in đậm trong code, chữ Hy Lạp — bị xếp theo chiều
+    dọc thay vì theo vị trí thật trong câu:
+
+        "def calculate_account_fees(account)"  ->  "calculate_account_fees(account) def"
+        "current project.[10] Once you're"     ->  "[10] current project. Once you're"
+
+    Riêng nhãn "Topic N"/"Tip N" nằm CÙNG dòng với tiêu đề (lệch ~2px) nhưng
+    phải ra TRƯỚC để build_blocks kịp đặt pending_label — nếu không, tiêu đề
+    thành '### ...' thường và số Tip bị gán nhầm sang mục sau.
+    """
+    runs = sorted(runs, key=lambda r: (r["top"], r["left"]))
+    out, i, n = [], 0, len(runs)
+    while i < n:
+        j, top0, prev = i + 1, runs[i]["top"], runs[i]["top"]
+        while (j < n and runs[j]["top"] - prev < LINE_TOL
+               and runs[j]["top"] - top0 < LINE_TOL * 2):
+            prev = runs[j]["top"]
+            j += 1
+        grp = sorted(runs[i:j], key=lambda r: r["left"])
+        labels = [r for r in grp if classify(r) in ("topiclabel", "tiplabel")]
+        lab_ids = {id(r) for r in labels}
+        out.extend(labels)
+        rest = [r for r in grp if id(r) not in lab_ids]
+        if rest:
+            base = max(rest, key=lambda r: len(r["text"]))  # run dài nhất định font
+            out.append({**base, "top": top0,
+                        "text": " ".join(r["text"] for r in rest)})
+        i = j
+    return out
+
+
 def build_blocks(lines):
     """Trả về danh sách block: (kind, payload). kind: heading/topic/tip/para/quote/caps.
     payload cho 'topic' = (no_or_None, title)."""
@@ -143,6 +182,9 @@ def build_blocks(lines):
             text = " ".join(parts)
             text = re.sub(r"(\w)-\s+(\w)", lambda m: m.group(1)+m.group(2)
                           if m.group(2).islower() else m.group(0), text)
+            # dấu trang trí đầu dòng (vd "▶ Saron Yitbarek"): Noto Serif không có
+            # glyph ▶ nên xelatex báo thiếu ký tự và in ra khoảng trắng.
+            text = re.sub(r"^[•◦▪‣·▶▸]\s*", "", text)
             blocks.append((kind, text))
             cur = None
 
@@ -153,9 +195,9 @@ def build_blocks(lines):
         # epigraph -> 1 khối quote đặt đầu trang (nếu có)
         if quote:
             flush()
-            qs = sorted(quote, key=lambda x: x["top"])
+            qs = merge_lines(quote)
             blocks.append(("quote", " ".join(q["text"] for q in qs)))
-        for ln in sorted(body, key=lambda x: x["top"]):
+        for ln in merge_lines(body):
             k = classify(ln)
             if k == "chapter":
                 flush()
