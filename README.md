@@ -110,3 +110,15 @@ Nguồn chỉ có PDF — **Plan and Build Robust Data Systems** (Joe Reis & Mat
 Nguồn chỉ có PDF — **Third Edition** (Mario Casciaro & Luciano Mammino). Trích bằng `scripts/extract_pdf.py` (giữ hình vẽ). Chỉ xuất **PDF**.
 
 **Hoàn thành: 14/14 chương** 🎉 · 700 trang · Đầu ra: `books/nodejs-design-patterns/output/nodejs-design-patterns-song-ngu.pdf`
+
+### 📓 Clean Code, Second Edition (`books/clean-code/`)
+
+Nguồn chỉ có PDF — **A Handbook of Agile Software Craftsmanship, 2nd Edition** (Robert C. Martin, Addison-Wesley 2025, bản *Early Release*). PDF do calibre xuất nên **toàn sách chỉ dùng một font family** (DejaVuSans) → không phân biệt heading bằng font được như `extract_pp.py`, phải dựa vào **cỡ chữ + in đậm**: `--head-size 26 --code-family Mono --gap-para 30 --gap-line 40`. Giữ cả hình vẽ (122 ảnh). Chỉ xuất **PDF**.
+
+Năm cải tiến cho `scripts/extract_pdf.py` từ sách này: trải phẳng **ligature** (`ﬁ ﬀ ﬂ` → `fi ff fl`), nối **tiêu đề chương bị xuống dòng**, nhận đúng cấp heading cho `Part / Appendix / Bibliography / Introduction` (sửa luôn typo `FORWARD` → `FOREWORD`), gom các đoạn chữ cùng dòng theo **chuỗi** thay vì so với run đầu tiên (cờ mới `--line-tol`), và nhận **dấu đầu dòng đứng riêng một run** là đầu mục danh sách.
+
+> ⚠️ Hai sửa đổi cuối là lỗi **mất nội dung**, không phải lỗi thẩm mỹ: khi một dòng có chữ mono lệch baseline (vd `▪ Shape.java does not need to change.`), run mono rớt khỏi nhóm dòng, bị coi là "khối code một từ" rồi bị bộ lọc nhiễu xoá hẳn — tên file/class biến mất khỏi bản tiếng Anh. Ảnh hưởng 25/42 chương.
+
+Thêm `scripts/slice_blocks.py`: chia thân chương thành lát ≤120 khối có **dấu mốc `⟦n⟧`**, cho phép nhiều agent dịch song song một chương mà vẫn bắt được lệch khối **đúng tại vị trí** (thay vì chỉ báo lệch tổng số như `merge_bilingual.py`).
+
+**Hoàn thành: 42/42 phần** 🎉 (Foreword + Introduction + 37 chương + 4 trang Part + Afterword + Appendix + Bibliography) · 5.257 khối song ngữ · Đầu ra: `books/clean-code/output/clean-code-song-ngu.pdf`
