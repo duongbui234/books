@@ -130,3 +130,18 @@ Năm cải tiến cho `scripts/extract_pdf.py` từ sách này: trải phẳng *
 Thêm `scripts/slice_blocks.py`: chia thân chương thành lát ≤120 khối có **dấu mốc `⟦n⟧`**, cho phép nhiều agent dịch song song một chương mà vẫn bắt được lệch khối **đúng tại vị trí** (thay vì chỉ báo lệch tổng số như `merge_bilingual.py`).
 
 **Hoàn thành: 42/42 phần** 🎉 (Foreword + Introduction + 37 chương + 4 trang Part + Afterword + Appendix + Bibliography) · 5.257 khối song ngữ · Đầu ra: `books/clean-code/output/clean-code-song-ngu.pdf`
+
+### 📔 Clean Architecture (`books/clean-architecture/`)
+
+Nguồn chỉ có PDF — **A Craftsman's Guide to Software Structure and Design** (Robert C. Martin, Pearson 2018), 429 trang, dàn trang InDesign. Cuốn này cần **extractor riêng** `scripts/extract_ca.py` vì bốn đặc điểm mà `extract_pdf.py` không xử lý được:
+
+1. **Chrome phân biệt bằng MÀU, không bằng vị trí** — running header và số trang đều `#a7a9ab`, watermark `www.EBooksWorld.ir` màu `#d4d4d4`. Số trang nằm ở 86% chiều cao nên bộ lọc footer theo vị trí (>92%) không bắt được.
+2. **Heading bị InDesign giãn chữ** — xuất ra thành `Wh at  I s  D e s ig n`. `despace()` dựa vào quy luật *1 dấu cách = trong từ, ≥2 = giữa hai từ* để dựng lại `What Is Design`.
+3. **97 hình đều là VECTOR** — `pdftohtml -xml` trả về **0** `<image>` cho cả cuốn. Phải xác định dải dọc chứa hình (từ đáy đoạn văn tới dòng `Figure N.M`) rồi render bằng `pdftoppm` + xén lề bằng Pillow. Lưu ý: `pdftohtml -xml` **luôn** dựng trang ở 108 DPI cố định (1188 đơn vị = 792pt), nên tỉ lệ là `DPI/108` — KHÔNG suy từ `pdfinfo` vì sách có nhiều khổ trang.
+4. **XML của poppler có byte hỏng** (byte `0x84` trong một href ở trang 429) làm `ET.parse` ném lỗi → đọc bytes rồi `decode(errors="replace")`.
+
+Tham số chọn theo **đo đạc thực tế** chứ không đoán: phân bố lệch baseline lưỡng cực rõ — trong cùng dòng 1–6px, giữa hai dòng ≥13px (đỉnh 21px) — nên `LINE_TOL = 9` an toàn cả hai phía.
+
+**Hoàn thành: 43/43 phần** 🎉 (Front matter + 34 chương + 7 trang Part + Appendix A) · 2.467 khối song ngữ · 97 hình · 397 trang · Đầu ra: `books/clean-architecture/output/clean-architecture-song-ngu.pdf`
+
+> ✅ **Đã qua vòng soát đối kháng.** 8 cụm chương × 4 lăng kính độc lập (đúng nghĩa · thuật ngữ · thiếu nội dung · văn phong) sinh 278 phát hiện; mỗi phát hiện bị một agent khác cố bác bỏ → 145 sống sót, gộp trùng còn 84 khối. Bắt được các lỗi một lượt soát đơn hay bỏ qua: `straightforward` → "thẳng thắn", `idealistic` → "duy tâm", `resistance` → "trở kháng", `sump pump` → "máy bơm hố ga", thành ngữ `I've been known to` và `heartburn` bị dịch nghĩa đen, mất lượng từ trong `not all substitutable`, và hai tiêu đề chương bỏ quên chưa dịch.
